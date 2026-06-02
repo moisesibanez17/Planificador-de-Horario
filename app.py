@@ -73,11 +73,12 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
 
 # Session middleware
+_is_production = os.environ.get('ENV', 'development') == 'production'
 app.add_middleware(
     SessionMiddleware,
     secret_key=os.environ.get('FLASK_SECRET', 'dev-secret-changeme'),
-    max_age=86400,  # 24 hours
-    https_only=False,
+    max_age=86400,
+    https_only=_is_production,
     same_site='lax'
 )
 
