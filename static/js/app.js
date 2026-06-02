@@ -46,139 +46,150 @@ function inicializarCalendario() {
 }
 
 // Buscar materias
-document.getElementById('btnBuscar').addEventListener('click', async () => {
+document.getElementById('btnBuscar').addEventListener('click', buscarMaterias);
+
+async function buscarMaterias() {
     const ciclo = document.getElementById('ciclo').value;
     const centro = document.getElementById('centro').value;
     const carrera = document.getElementById('carrera').value;
+    const btn = document.getElementById('btnBuscar');
 
     if (!centro) {
-        alert('Por favor selecciona un centro universitario');
+        Swal.fire({ title: 'Selecciona un centro', icon: 'warning', confirmButtonColor: '#5a67d8' });
         return;
     }
 
-    const loading = document.getElementById('loading');
-    const btnBuscar = document.getElementById('btnBuscar');
-
-    loading.style.display = 'block';
-    btnBuscar.disabled = true;
+    btn.classList.add('loading');
+    btn.disabled = true;
 
     try {
         const response = await fetch('/api/buscar_materias', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ciclo, centro, carrera })
         });
-
         const data = await response.json();
 
-        if (data.success) {
+        if (data.materias) {
             materiasCargadas = data.materias;
             mostrarMaterias(materiasCargadas);
-            document.getElementById('materiasContainer').style.display = 'block';
+            document.getElementById('panelMateriasHeader').style.display = 'flex';
         } else {
-            alert('Error al buscar materias: ' + data.error);
+            Swal.fire({ title: 'Error', text: data.error || 'Error al buscar', icon: 'error', confirmButtonColor: '#5a67d8' });
         }
-    } catch (error) {
-        alert('Error al conectar con el servidor: ' + error.message);
+    } catch (e) {
+        Swal.fire({ title: 'Error de conexión', text: e.message, icon: 'error', confirmButtonColor: '#5a67d8' });
     } finally {
-        loading.style.display = 'none';
-        btnBuscar.disabled = false;
+        btn.classList.remove('loading');
+        btn.disabled = false;
     }
-});
+}
 
-// Mostrar materias en la lista
+// Mostrar materias en la lista (agrupadas por materia, secciones expandibles)
 function mostrarMaterias(materias) {
     const lista = document.getElementById('listaMaterias');
     lista.innerHTML = '';
 
-    // Agrupar por materia
-    const materiasAgrupadas = {};
-    materias.forEach(materia => {
-        const key = `${materia.NRC}_${materia.Materia}`;
-        if (!materiasAgrupadas[key]) {
-            materiasAgrupadas[key] = {
-                ...materia,
-                horarios: []
-            };
+    // Agrupar por Clave+Materia (una entrada por materia, múltiples secciones/NRCs)
+    const grupos = {};
+    materias.forEach(m => {
+        const key = `${m.Clave}_${m.Materia}`;
+        if (!grupos[key]) {
+            grupos[key] = { nombre: m.Materia, clave: m.Clave, secciones: [] };
         }
-        if (materia.Horas && materia.Dias) {
-            const nuevoHorario = {
-                horas: materia.Horas,
-                dias: materia.Dias,
-                edificio: materia.Edificio,
-                aula: materia.Aula
-            };
-
-            // Check if this exact horario already exists to prevent duplicates
-            const existe = materiasAgrupadas[key].horarios.some(h =>
-                h.horas === nuevoHorario.horas &&
-                h.dias === nuevoHorario.dias &&
-                h.edificio === nuevoHorario.edificio &&
-                h.aula === nuevoHorario.aula
-            );
-
-            if (!existe) {
-                materiasAgrupadas[key].horarios.push(nuevoHorario);
-            }
+        // Verificar que este NRC no esté ya agregado al grupo
+        if (!grupos[key].secciones.find(s => s.NRC === m.NRC)) {
+            const horarios = [];
+            if (m.Horas && m.Dias) horarios.push({ dias: m.Dias, horas: m.Horas, edificio: m.Edificio || '', aula: m.Aula || '' });
+            grupos[key].secciones.push({ ...m, horarios });
+        } else if (m.Horas && m.Dias) {
+            // Agregar horario adicional a sección existente
+            const sec = grupos[key].secciones.find(s => s.NRC === m.NRC);
+            const nuevoH = { dias: m.Dias, horas: m.Horas, edificio: m.Edificio || '', aula: m.Aula || '' };
+            const existe = sec.horarios.some(h => h.dias === nuevoH.dias && h.horas === nuevoH.horas);
+            if (!existe) sec.horarios.push(nuevoH);
         }
     });
 
-    // Actualizar el total con las materias agrupadas
-    document.getElementById('totalMaterias').textContent = Object.keys(materiasAgrupadas).length;
+    document.getElementById('totalMaterias').textContent = Object.keys(grupos).length;
 
-    Object.values(materiasAgrupadas).forEach(materia => {
-        const item = document.createElement('div');
-        item.className = 'materia-item';
-        item.dataset.nrc = materia.NRC;
+    if (Object.keys(grupos).length === 0) {
+        lista.innerHTML = '<div class="panel-empty-state"><i class="fas fa-search"></i><p>Sin resultados.</p></div>';
+        return;
+    }
 
-        // Verificar si ya está agregada
-        const yaAgregada = materiasAgregadas.some(m => m.NRC === materia.NRC);
-        if (yaAgregada) {
-            item.classList.add('agregada');
-        }
+    Object.values(grupos).forEach(grupo => {
+        const row = document.createElement('div');
+        row.className = 'materia-row';
+        row.dataset.clave = grupo.clave;
 
-        let horariosHtml = '';
-        materia.horarios.forEach((h, idx) => {
-            horariosHtml += `<div class="materia-horario">📅 ${h.dias} ${h.horas} - ${h.edificio} ${h.aula}</div>`;
-        });
+        const seccionesHtml = grupo.secciones.map(sec => {
+            const yaAgregada = materiasAgregadas.some(m => m.NRC === sec.NRC);
+            const horarioTexto = sec.horarios.map(h => `${h.dias} ${h.horas}`).join(' / ') || 'Sin horario';
+            const salonTexto = sec.horarios.length > 0 ? `${sec.horarios[0].edificio} ${sec.horarios[0].aula}`.trim() : '';
 
-        // Format professor rating display
-        let profesorHtml = `Profesor: ${materia.Profesor}`;
-        if (materia.ProfesorRating && materia.ProfesorRating > 0) {
-            const rating = materia.ProfesorRating;
-            const count = materia.ProfesorRatingCount || 0;
-            const stars = '⭐'.repeat(Math.round(rating));
-            profesorHtml = `Profesor: ${materia.Profesor} <span class="profesor-rating" title="${rating}/5 (${count} evaluaciones)">${stars} ${rating.toFixed(1)}</span>`;
-        }
+            let starsHtml = '';
+            if (sec.ProfesorRating && sec.ProfesorRating > 0) {
+                const r = Math.round(sec.ProfesorRating);
+                starsHtml = `<span class="seccion-stars">${'★'.repeat(r)}${'☆'.repeat(5-r)}</span>`;
+            }
 
-        item.innerHTML = `
-            <div class="materia-nombre">${materia.Materia}</div>
-            <div class="materia-info">Clave: ${materia.Clave} | NRC: ${materia.NRC} | Sección: ${materia.Sec}</div>
-            <div class="materia-info">${profesorHtml}</div>
-            <div class="materia-info">Créditos: ${materia.CR} | Disponibles: ${materia.DIS}</div>
-            ${horariosHtml}
+            return `
+                <div class="seccion-item">
+                    <div class="seccion-info">
+                        <div class="seccion-nrc">NRC ${sec.NRC} · Sec ${sec.Sec}</div>
+                        <div class="seccion-profesor">${sec.Profesor}${starsHtml}</div>
+                        <div class="seccion-horario">${horarioTexto}${salonTexto ? ' · ' + salonTexto : ''}</div>
+                    </div>
+                    <button
+                        class="btn-anadir${yaAgregada ? ' added' : ''}"
+                        data-nrc="${sec.NRC}"
+                        ${yaAgregada ? 'disabled' : ''}
+                    >${yaAgregada ? '✓ Añadida' : '+ Añadir'}</button>
+                </div>
+            `;
+        }).join('');
+
+        row.innerHTML = `
+            <div class="materia-row-header">
+                <div class="materia-row-name">${grupo.nombre}</div>
+                <div class="materia-row-meta">${grupo.secciones.length} secc.</div>
+                <div class="materia-row-chevron">▼</div>
+            </div>
+            <div class="seccion-list">${seccionesHtml}</div>
         `;
 
-        if (!yaAgregada) {
-            item.addEventListener('click', () => agregarMateriaAlHorario(materia));
-        }
+        // Click en header: toggle expand (solo una a la vez)
+        row.querySelector('.materia-row-header').addEventListener('click', () => {
+            const isExpanded = row.classList.contains('expanded');
+            lista.querySelectorAll('.materia-row.expanded').forEach(r => r.classList.remove('expanded'));
+            if (!isExpanded) row.classList.add('expanded');
+        });
 
-        lista.appendChild(item);
+        // Click en botón añadir (event delegation dentro de la row)
+        row.addEventListener('click', e => {
+            const btn = e.target.closest('.btn-anadir');
+            if (!btn || btn.disabled) return;
+            e.stopPropagation();
+            const nrc = btn.dataset.nrc;
+            const seccion = grupo.secciones.find(s => s.NRC === nrc);
+            if (seccion) agregarMateriaAlHorario(seccion);
+        });
+
+        lista.appendChild(row);
     });
 }
 
 // Filtrar materias
 document.getElementById('filtroMaterias').addEventListener('input', (e) => {
     const filtro = e.target.value.toLowerCase();
-    const materiasFiltradas = materiasCargadas.filter(m =>
+    const filtradas = materiasCargadas.filter(m =>
         m.Materia.toLowerCase().includes(filtro) ||
         m.Profesor.toLowerCase().includes(filtro) ||
         m.NRC.includes(filtro) ||
         m.Clave.toLowerCase().includes(filtro)
     );
-    mostrarMaterias(materiasFiltradas);
+    mostrarMaterias(filtradas);
 });
 
 // Agregar materia al horario

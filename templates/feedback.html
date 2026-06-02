@@ -7,11 +7,6 @@
     <title>Sugerencias - Planificador UDG</title>
 
     <!-- Fonts and Styles -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;500;600&display=swap"
-        rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -20,28 +15,7 @@
     <div class="glass-bg"></div>
 
     <div class="l-container">
-        <header class="l-header glass">
-            <a href="/" class="header-brand" style="text-decoration: none;">
-                <div class="logo-wrapper">
-                    <img src="{{ url_for('static', filename='assets/icon.png') }}" alt="Logo" class="header-logo">
-                    <div class="logo-glow"></div>
-                </div>
-                <div>
-                    <h1 class="header-title">Planificador<span>UDG</span></h1>
-                    <p class="header-tagline">By students, for students</p>
-                </div>
-            </a>
-
-            <nav class="header-nav">
-                <a href="/planner" class="nav-link"><i class="fas fa-calendar-alt"></i><span>Horarios</span></a>
-                <a href="/professors" class="nav-link"><i
-                        class="fas fa-chalkboard-teacher"></i><span>Profesores</span></a>
-            </nav>
-
-            <div class="header-auth">
-                <a href="/" class="l-btn l-btn-text">Volver</a>
-            </div>
-        </header>
+        {% include '_navbar.html' %}
 
         <main class="feedback-main">
             <section class="feedback-container glass">

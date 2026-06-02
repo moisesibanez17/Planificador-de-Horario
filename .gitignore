@@ -1,12 +1,15 @@
 # Virtual environment
 .venv/
 venv/
+
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
 
-# IDE files
-.idea/
-
-# PyInstaller
+# Build artifacts
 build/
 dist/
 *.spec
@@ -15,18 +18,20 @@ dist/
 *.toc
 localpycs/
 
-# Python bytecode
-*.pyc
-*.pyo
-*.pyd
+# IDE
+.idea/
+.vscode/
 
-
-# System files
+# System
 Thumbs.db
 .DS_Store
 
-# Otros temporales
-*.log
-
-# Supabase
+# Environment / secrets
 .env
+.env.*
+
+# MCP
+.mcp.json
+
+# Brainstorming sessions
+.superpowers/

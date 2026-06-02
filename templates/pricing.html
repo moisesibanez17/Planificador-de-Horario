@@ -9,25 +9,7 @@
 </head>
 <body>
   <div class="container">
-    <header class="main-header">
-      <div class="header-brand">
-        <img src="{{ url_for('static', filename='assets/icon.png') }}" alt="Logo" class="header-logo">
-        <div>
-          <h1 class="header-title">Planes de Suscripción</h1>
-          <div class="subtitle">Elige el plan que mejor se adapte a ti</div>
-        </div>
-      </div>
-      <div class="header-actions">
-        <a href="/" class="btn btn-outline btn-sm" style="margin-right: 10px;"><i class="fas fa-home"></i> Inicio</a>
-        <a href="https://beneficios.diferente.page/" target="_blank" class="btn btn-outline btn-sm" style="margin-right: 10px;"><i class="fas fa-gift"></i> Beneficios</a>
-        {% if user %}
-          <a href="/dashboard" class="btn btn-primary btn-sm">Dashboard</a>
-          <a href="/logout" class="btn btn-outline btn-sm">Cerrar sesión</a>
-        {% else %}
-          <a href="/login" class="btn btn-primary btn-sm">Iniciar sesión</a>
-        {% endif %}
-      </div>
-    </header>
+    {% include '_navbar.html' %}
 
     <div class="pricing-container">
       <div class="pricing-grid">

@@ -21,31 +21,7 @@
     </div>
     {% endif %}
     {% endwith %}
-    <header class="main-header">
-      <div class="header-brand">
-        <img src="{{ url_for('static', filename='assets/icon.png') }}" alt="Logo" class="header-logo">
-        <div>
-          <h1 class="header-title">Planificador UDG</h1>
-          <div class="subtitle">
-            {% if profile and profile.full_name %}
-            {{ profile.full_name }}
-            {% elif user.user_metadata and user.user_metadata.full_name %}
-            {{ user.user_metadata.full_name }}
-            {% else %}
-            {{ user.email }}
-            {% endif %}
-          </div>
-        </div>
-      </div>
-      <div class="header-actions">
-        <a href="/" class="btn btn-outline btn-sm" style="margin-right: 10px;"><i class="fas fa-home"></i> Inicio</a>
-        <a href="/professors" class="btn btn-outline btn-sm" style="margin-right: 10px;"><i
-            class="fas fa-chalkboard-teacher"></i> Profesores</a>
-        <a href="https://beneficios.diferente.page/" target="_blank" class="btn btn-outline btn-sm"
-          style="margin-right: 10px;"><i class="fas fa-gift"></i> Beneficios</a>
-        <a href="/logout" class="btn btn-secondary btn-sm">Cerrar sesión</a>
-      </div>
-    </header>
+    {% include '_navbar.html' %}
 
     <div class="main-content">
       <aside class="dashboard-sidebar">
@@ -79,6 +55,17 @@
           <p>
             Horarios: <strong>{{ schedule_count }}/{{ max_schedules }}</strong>
           </p>
+        </div>
+
+        <div class="dashboard-stats" style="margin-top: 16px;">
+          <h4>Mi Centro</h4>
+          <select id="preferredCentro" class="form-control" style="margin-top: 8px; font-size: 13px;">
+            <option value="">Sin preferencia</option>
+            {% for codigo, nombre in centros.items() %}
+            <option value="{{ codigo }}">{{ nombre }}</option>
+            {% endfor %}
+          </select>
+          <p style="font-size: 11px; color: var(--muted); margin-top: 6px;">Se preselecciona en búsquedas.</p>
         </div>
       </aside>
 
@@ -212,6 +199,14 @@
         const notes = e.target.dataset.scheduleNotes;
         showEditForm(scheduleId, name, color, notes);
       }
+    });
+
+    // Centro preferido
+    const centroSelect = document.getElementById('preferredCentro');
+    const saved = localStorage.getItem('preferred_centro');
+    if (saved) centroSelect.value = saved;
+    centroSelect.addEventListener('change', () => {
+      localStorage.setItem('preferred_centro', centroSelect.value);
     });
   </script>
 </body>

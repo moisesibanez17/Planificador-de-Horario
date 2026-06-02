@@ -40,11 +40,6 @@
     <meta name="apple-mobile-web-app-title" content="UDG Planner">
 
     <!-- Fonts and Styles -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;500;600&display=swap"
-        rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -53,41 +48,7 @@
     <div class="glass-bg"></div>
 
     <div class="l-container">
-        <header class="l-header glass">
-            <div class="header-brand">
-                <div class="logo-wrapper">
-                    <img src="{{ url_for('static', path='assets/icon.png') }}" alt="Logo" class="header-logo">
-                    <div class="logo-glow"></div>
-                </div>
-                <div>
-                    <h1 class="header-title">Planificador<span>UDG</span></h1>
-                    <p class="header-tagline">By students, for students</p>
-                </div>
-            </div>
-
-            <nav class="header-nav">
-                <a href="/planner" class="nav-link"><i class="fas fa-calendar-alt"></i><span>Horarios</span></a>
-                <a href="/professors" class="nav-link"><i
-                        class="fas fa-chalkboard-teacher"></i><span>Profesores</span></a>
-                <a href="https://beneficios.diferente.page/" target="_blank" class="nav-link"><i
-                        class="fas fa-gift"></i><span>Beneficios</span></a>
-            </nav>
-
-            <div class="header-auth">
-                {% if user %}
-                <div class="auth-group">
-                    <a href="/dashboard" class="l-btn l-btn-primary">Dashboard</a>
-                    <a href="/logout" class="l-btn l-btn-text" title="Cerrar sesión"><i
-                            class="fas fa-sign-out-alt"></i></a>
-                </div>
-                {% else %}
-                <div class="auth-group">
-                    <a href="/login" class="l-btn l-btn-text">Entrar</a>
-                    <a href="/signup" class="l-btn l-btn-primary">Crear cuenta</a>
-                </div>
-                {% endif %}
-            </div>
-        </header>
+        {% include '_navbar.html' %}
 
         <main>
             <section class="l-hero">

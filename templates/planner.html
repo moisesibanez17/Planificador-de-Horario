@@ -8,11 +8,6 @@
     <link rel="icon" href="{{ url_for('static', filename='assets/icon.png') }}">
 
     <!-- Fonts and Styles -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&family=Inter:wght@400;500;600&display=swap"
-        rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=9">
     <style>
         .header-brand {
@@ -80,40 +75,7 @@
 
 <body>
     <div class="container">
-        <header>
-            <div class="header-brand-container">
-                <a href="/" class="btn-back" title="Volver al inicio">
-                    <i class="fas fa-arrow-left"></i>
-                </a>
-                <div class="header-brand">
-                    <div class="logo-wrapper">
-                        <img src="{{ url_for('static', filename='assets/icon.png') }}" alt="Logo" class="header-logo">
-                        <div class="logo-glow"></div>
-                    </div>
-                    <div class="header-content">
-                        <a href="/" style="text-decoration: none; color: inherit;">
-                            <h1>Planificador UDG</h1>
-                        </a>
-                        <p class="subtitle">By students, for students</p>
-                    </div>
-                </div>
-            </div>
-            <nav class="header-nav">
-                <a href="/planner" class="nav-link active">Horarios</a>
-                <a href="/professors" class="nav-link">Profesores</a>
-                {% if user %}
-                <div class="user-info">
-                    <a href="/dashboard" class="btn btn-secondary btn-sm">Dashboard</a>
-                    <a href="/logout" class="btn btn-outline btn-sm">Cerrar Sesión</a>
-                </div>
-                {% else %}
-                <div class="auth-buttons">
-                    <a href="/login" class="btn btn-outline btn-sm">Entrar</a>
-                    <a href="/signup" class="btn btn-primary btn-sm">Crear Cuenta</a>
-                </div>
-                {% endif %}
-            </nav>
-        </header>
+        {% include '_navbar.html' %}
 
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -125,70 +87,53 @@
         {% endif %}
         {% endwith %}
 
-        <main class="main-content">
-            <aside class="left-panel">
-                <div class="search-panel planner-search-panel">
-                    <h2 class="planner-search-title">
-                        <i class="fas fa-search"></i> Buscar Materias
-                    </h2>
-                    <div class="form-group">
-                        <label for="ciclo" class="planner-label">
-                            <i class="far fa-calendar-alt"></i> Ciclo Escolar
-                        </label>
-                        <select id="ciclo" class="form-control planner-select">
-                            <option value="202610">2026-A</option>
-                            <option value="202520">2025-B</option>
-                            <option value="202510">2025-A</option>
-                        </select>
+        <!-- Barra de filtros superior -->
+        <div class="filter-bar">
+            <select id="ciclo" class="filter-ciclo">
+                <option value="202620">2026-B</option>
+                <option value="202610">2026-A</option>
+                <option value="202520">2025-B</option>
+                <option value="202510">2025-A</option>
+            </select>
+            <select id="centro" class="filter-centro">
+                <option value="">Centro universitario...</option>
+                {% for codigo, nombre in centros.items() %}
+                <option value="{{ codigo }}">{{ nombre }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" id="carrera" class="filter-carrera" placeholder="Carrera (ej: INCO)">
+            <button id="btnBuscar" class="btn-buscar-top">
+                <div class="spinner-inline"></div>
+                <span class="btn-text"><i class="fas fa-search"></i> Buscar</span>
+            </button>
+        </div>
+
+        <!-- Layout dos paneles -->
+        <div class="planner-layout">
+
+            <!-- Panel izquierdo: lista de materias -->
+            <div class="panel-materias">
+                <div class="panel-materias-header" id="panelMateriasHeader" style="display:none;">
+                    <input type="text" id="filtroMaterias" placeholder="Filtrar materias...">
+                    <span class="count-badge"><span id="totalMaterias">0</span> resultados</span>
+                </div>
+                <div class="panel-materias-list" id="listaMaterias">
+                    <div class="panel-empty-state">
+                        <i class="fas fa-search"></i>
+                        <p>Selecciona ciclo y centro,<br>luego haz clic en Buscar.</p>
                     </div>
-                    <div class="form-group">
-                        <label for="centro" class="planner-label">
-                            <i class="fas fa-university"></i> Centro Universitario
-                        </label>
-                        <select id="centro" class="form-control planner-select">
-                            <option value="">Selecciona un centro...</option>
-                            {% for codigo, nombre in centros.items() %}
-                            <option value="{{ codigo }}">{{ nombre }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="carrera" class="planner-label">
-                            <i class="fas fa-graduation-cap"></i> Carrera (Opcional)
-                        </label>
-                        <input type="text" id="carrera" class="form-control planner-input" placeholder="Ej: INCO, IINF">
-                        <small>Escribe el nombre o siglas de tu carrera</small>
-                    </div>
-                    <button id="btnBuscar" class="btn btn-primary planner-btn-buscar">
-                        <i class="fas fa-search-plus"></i> <span class="btn-text">Buscar Materias</span>
+                </div>
+            </div>
+
+            <!-- Panel derecho: calendario -->
+            <div class="panel-calendario">
+                <div class="panel-calendario-header">
+                    <h2>Mi Horario</h2>
+                    <button id="btnLimpiarHorario" class="btn btn-outline btn-sm" style="color:var(--danger);">
+                        Limpiar todo
                     </button>
-
-                    <div id="loading" class="planner-loading">
-                        <div class="planner-spinner"></div>
-                        <p class="planner-loading-text">Buscando secciones disponibles...</p>
-                    </div>
                 </div>
-
-                <div id="materiasContainer" class="materias-container" style="display: none;">
-                    <div class="materias-header">
-                        <h3>Resultados (<span id="totalMaterias">0</span>)</h3>
-                    </div>
-                    <div class="search-box">
-                        <input type="text" id="filtroMaterias" class="form-control" placeholder="Filtrar por nombre...">
-                    </div>
-                    <div id="listaMaterias" class="materias-list"></div>
-                </div>
-            </aside>
-
-            <section class="right-panel">
-                <div class="calendar-panel">
-                    <div class="calendar-header">
-                        <h2>Mi Horario</h2>
-                        <button id="btnLimpiarHorario" class="btn btn-outline" style="color: var(--danger);">
-                            Limpiar Todo
-                        </button>
-                    </div>
-
+                <div class="panel-calendario-body">
                     <div class="calendar-grid" id="calendario">
                         <div class="calendar-cell header">Hora</div>
                         <div class="calendar-cell header">Lun</div>
@@ -198,30 +143,27 @@
                         <div class="calendar-cell header">Vie</div>
                         <div class="calendar-cell header">Sab</div>
                     </div>
-
-                    <div id="legendItems" class="planner-legend">
+                    <div id="legendItems" class="planner-legend" style="margin-top:12px;">
                         <p class="planner-empty-message">Selecciona materias del panel.</p>
                     </div>
-
+                </div>
+                <div class="panel-calendario-footer">
                     {% if user %}
                     <div class="planner-save-container">
-                        <div style="flex: 1;">
+                        <div style="flex:1;">
                             <label class="planner-save-label">Nombre del horario</label>
                             <input type="text" id="nombreHorario" class="form-control planner-save-input"
-                                placeholder="Ej: Semestre 2026-A">
+                                placeholder="Ej: Semestre 2026-B">
                         </div>
                         <button id="btnGuardarHorario" class="btn btn-primary planner-btn-guardar">
-                            <i class="fas fa-save"></i> Guardar Horario
+                            <i class="fas fa-save"></i> Guardar
                         </button>
                     </div>
                     {% else %}
                     <div class="planner-auth-promo animate-in">
-                        <div class="promo-icon">
-                            <i class="fas fa-magic"></i>
-                        </div>
+                        <div class="promo-icon"><i class="fas fa-magic"></i></div>
                         <h3 class="promo-title">¡Guarda tu Horario!</h3>
-                        <p class="planner-auth-promo-text">No pierdas tus combinaciones ideales. Crea una cuenta
-                            gratuita para guardar, gestionar y compartir tus horarios en cualquier momento.</p>
+                        <p class="planner-auth-promo-text">Crea una cuenta gratuita para guardar tus horarios.</p>
                         <div class="promo-actions">
                             <a href="/signup" class="btn-promo-primary">Registrarse Gratis</a>
                             <a href="/login" class="btn-promo-outline">Iniciar Sesión</a>
@@ -229,8 +171,9 @@
                     </div>
                     {% endif %}
                 </div>
-            </section>
-        </main>
+            </div>
+
+        </div>
     </div>
 
     <footer class="l-footer">
@@ -241,6 +184,13 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}?v=6"></script>
+    <script>
+      const _pc = localStorage.getItem('preferred_centro');
+      if (_pc) {
+        const el = document.getElementById('centro');
+        if (el) el.value = _pc;
+      }
+    </script>
 </body>
 
 </html>

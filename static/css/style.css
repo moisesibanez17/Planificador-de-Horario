@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
 /* --- NEW DESIGN SYSTEM --- */
 :root {
     --brand-primary: #5a67d8;
@@ -14,10 +16,16 @@
 body {
     background: var(--bg-main);
     color: var(--text-main);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
     line-height: 1.6;
     overflow-x: hidden;
     margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+    font-weight: 700;
+    line-height: 1.2;
 }
 
 .glass-bg {
@@ -117,6 +125,22 @@ body {
     display: flex;
     gap: 16px;
     align-items: center;
+}
+
+.mobile-menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-main);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    line-height: 1;
+}
+
+.mobile-menu-toggle:hover {
+    background: rgba(0,0,0,0.06);
 }
 
 .user-info,
@@ -516,18 +540,46 @@ body {
 
 @media (max-width: 768px) {
     .l-header {
-        padding: 12px 20px;
-        margin-top: 12px;
+        padding: 12px 16px;
+        margin-top: 8px;
         position: relative;
         top: 0;
+        flex-wrap: wrap;
+        gap: 0;
     }
 
     .header-nav {
         display: none;
+        order: 10;
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        padding: 8px 0 4px;
+        border-top: 1px solid rgba(0,0,0,0.08);
+        margin-top: 8px;
+    }
+
+    .l-header.nav-open .header-nav {
+        display: flex;
+    }
+
+    .header-nav .nav-link {
+        width: 100%;
+        padding: 10px 8px;
+        border-radius: 8px;
+    }
+
+    .mobile-menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 8px;
     }
 
     .header-brand {
         gap: 10px;
+        flex: 1;
     }
 
     .logo-wrapper {
@@ -536,7 +588,7 @@ body {
     }
 
     .header-title {
-        font-size: 1.25rem;
+        font-size: 1.2rem;
     }
 
     .header-tagline {
@@ -544,7 +596,7 @@ body {
     }
 
     .header-auth {
-        gap: 8px;
+        gap: 6px;
     }
 
     .l-btn {
@@ -974,7 +1026,6 @@ textarea.l-input {
 }
 
 /* Rest of the original CSS preserved below */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
 
 :root {
     --bg-grad-1: #eef2ff;
@@ -997,7 +1048,7 @@ textarea.l-input {
 }
 
 body {
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
     background: linear-gradient(180deg, var(--bg-grad-1) 0%, var(--bg-grad-2) 100%);
     min-height: 100vh;
     padding: 28px;
@@ -1196,6 +1247,30 @@ header h1 {
     background: transparent;
     border: 1px solid #e6e9ef;
     color: #0f172a;
+}
+
+.btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 16px;
+    background: #fff;
+    border: 1px solid #e6e9ef;
+    border-radius: 8px;
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s;
+    box-sizing: border-box;
+}
+
+.btn-google:hover {
+    background: #f8fafc;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
 
 .btn-back {
@@ -4364,4 +4439,560 @@ header h1 {
     transform: translateY(-1px);
     box-shadow: 0 2px 6px rgba(251, 191, 36, 0.3);
     transition: all 0.2s ease;
+}
+
+/* === REDESIGN 2026 === */
+
+/* Barra de filtros superior compartida */
+.filter-bar {
+    background: #1e293b;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.filter-bar label {
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.filter-bar select,
+.filter-bar input[type="text"] {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #f1f5f9;
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    min-width: 0;
+}
+
+.filter-bar select:focus,
+.filter-bar input[type="text"]:focus {
+    outline: none;
+    border-color: rgba(90,103,216,0.6);
+    background: rgba(255,255,255,0.12);
+}
+
+.filter-bar select option {
+    background: #1e293b;
+    color: #f1f5f9;
+}
+
+.filter-bar .filter-ciclo { width: 110px; }
+.filter-bar .filter-centro { flex: 2; min-width: 160px; max-width: 300px; }
+.filter-bar .filter-carrera { flex: 1; min-width: 100px; max-width: 160px; }
+.filter-bar .filter-search { flex: 1; min-width: 120px; }
+
+.filter-bar .btn-buscar-top {
+    background: #5a67d8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+}
+
+.filter-bar .btn-buscar-top:hover { background: #4c51bf; }
+.filter-bar .btn-buscar-top:disabled { background: #475569; cursor: not-allowed; }
+
+.filter-bar .btn-buscar-top .spinner-inline {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+}
+
+.filter-bar .btn-buscar-top.loading .spinner-inline { display: inline-block; }
+.filter-bar .btn-buscar-top.loading .btn-text { display: none; }
+
+/* Layout de dos paneles */
+.planner-layout {
+    display: flex;
+    height: calc(100vh - 120px);
+    overflow: hidden;
+    gap: 0;
+}
+
+.panel-materias {
+    width: 40%;
+    min-width: 300px;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #e2e8f0;
+    background: #f8fafc;
+    overflow: hidden;
+}
+
+.panel-materias-header {
+    padding: 12px 16px;
+    background: white;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.panel-materias-header input {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: inherit;
+}
+
+.panel-materias-header .count-badge {
+    font-size: 11px;
+    color: #64748b;
+    white-space: nowrap;
+}
+
+.panel-materias-list {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.materia-row { flex-shrink: 0; }
+
+.panel-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #94a3b8;
+    text-align: center;
+    padding: 32px;
+    gap: 8px;
+}
+
+.panel-empty-state i { font-size: 32px; opacity: 0.4; }
+.panel-empty-state p { font-size: 13px; }
+
+/* Filas de materias expandibles */
+.materia-row {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+}
+
+.materia-row:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+
+.materia-row.expanded {
+    border-color: #c7d2fe;
+    box-shadow: 0 2px 8px rgba(90,103,216,0.12);
+}
+
+.materia-row-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    cursor: pointer;
+    gap: 8px;
+    user-select: none;
+}
+
+.materia-row-header:hover { background: #f8fafc; }
+.materia-row.expanded .materia-row-header { background: #ede9fe; }
+
+.materia-row-name {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.3;
+}
+
+.materia-row.expanded .materia-row-name { color: #3730a3; }
+
+.materia-row-meta {
+    font-size: 10px;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
+.materia-row-chevron {
+    font-size: 10px;
+    color: #94a3b8;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+
+.materia-row.expanded .materia-row-chevron { transform: rotate(180deg); color: #5a67d8; }
+
+/* Secciones expandidas */
+.seccion-list {
+    display: none;
+    border-top: 1px solid #e0e7ff;
+}
+
+.materia-row.expanded .seccion-list { display: block; }
+
+.seccion-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.1s;
+}
+
+.seccion-item:last-child { border-bottom: none; }
+.seccion-item:hover { background: #f8fafc; }
+
+.seccion-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.seccion-nrc {
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+}
+
+.seccion-profesor {
+    font-size: 11px;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.seccion-horario {
+    font-size: 10px;
+    color: #94a3b8;
+}
+
+.seccion-stars {
+    color: #f59e0b;
+    font-size: 10px;
+    margin-left: 2px;
+}
+
+.btn-anadir {
+    background: #5a67d8;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+
+.btn-anadir:hover { background: #4c51bf; }
+
+.btn-anadir.added {
+    background: #e2e8f0;
+    color: #64748b;
+    cursor: default;
+}
+
+/* Panel del calendario */
+.panel-calendario {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: white;
+}
+
+.panel-calendario-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.panel-calendario-header h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.panel-calendario-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+}
+
+.panel-calendario-footer {
+    border-top: 1px solid #e2e8f0;
+    padding: 12px 16px;
+}
+
+/* Grid de profesores */
+.prof-grid-redesign {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 20px;
+}
+
+.prof-card-redesign {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.prof-card-redesign:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+}
+
+.prof-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+    color: white;
+    flex-shrink: 0;
+}
+
+.prof-card-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.3;
+}
+
+.prof-card-stars {
+    color: #f59e0b;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+.prof-card-stars .empty { color: #e2e8f0; }
+
+.prof-card-count {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.prof-card-btn {
+    margin-top: auto;
+    width: 100%;
+    background: #5a67d8;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 0;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.prof-card-btn:hover { background: #4c51bf; }
+
+.prof-results-bar {
+    padding: 12px 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.prof-results-bar .count-text {
+    font-size: 13px;
+    color: #64748b;
+    flex: 1;
+}
+
+.prof-results-bar input,
+.prof-results-bar select {
+    padding: 6px 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: inherit;
+}
+
+/* === RESPONSIVE === */
+
+/* Tablet grande (≤1024px) */
+@media (max-width: 1024px) {
+    .planner-layout {
+        flex-direction: column;
+        height: auto;
+    }
+    .panel-materias {
+        width: 100%;
+        max-width: 100%;
+        max-height: 45vh;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .panel-calendario {
+        height: auto;
+        max-height: 55vh;
+    }
+}
+
+/* Tablet (≤900px) */
+@media (max-width: 900px) {
+    .prof-grid-redesign {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        padding: 16px;
+    }
+}
+
+/* Tablet chica / móvil grande (≤768px) */
+@media (max-width: 768px) {
+    .prof-grid-redesign {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        padding: 12px;
+    }
+
+    #schedulesList {
+        grid-template-columns: 1fr !important;
+    }
+
+    .panel-materias {
+        max-height: 40vh;
+    }
+
+    .panel-calendario {
+        max-height: none;
+    }
+
+    .panel-calendario-body {
+        padding: 8px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .filter-bar {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+}
+
+/* Móvil (≤600px) */
+@media (max-width: 600px) {
+    .filter-bar {
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .filter-bar select,
+    .filter-bar input[type="text"] {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .filter-bar .filter-ciclo,
+    .filter-bar .filter-centro,
+    .filter-bar .filter-carrera {
+        width: 100%;
+        max-width: 100%;
+        flex: none;
+    }
+
+    .filter-bar .btn-buscar-top {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .prof-grid-redesign {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .prof-results-bar {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 10px 10px 0;
+    }
+
+    .prof-results-bar input,
+    .prof-results-bar select {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .panel-materias {
+        max-height: 50vh;
+    }
+
+    .panel-calendario-footer {
+        padding: 10px;
+    }
+
+    .planner-save-container {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .planner-btn-guardar {
+        width: 100%;
+    }
+
+    .panel-calendario-header {
+        padding: 10px 12px;
+    }
+
+    .seccion-item {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .btn-anadir {
+        width: 100%;
+        text-align: center;
+    }
 }

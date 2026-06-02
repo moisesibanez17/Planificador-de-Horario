@@ -33,6 +33,7 @@ from functools import lru_cache  # OPTIMIZACIÓN: Para caché en memoria
 
 # Supabase imports
 from supabase_client import (
+    SUPABASE_URL,
     supabase_sign_in,
     supabase_sign_up,
     supabase_get_schedules,
@@ -76,7 +77,7 @@ app.add_middleware(
     SessionMiddleware,
     secret_key=os.environ.get('FLASK_SECRET', 'dev-secret-changeme'),
     max_age=86400,  # 24 hours
-    https_only=False,  # Set to True in Production
+    https_only=False,
     same_site='lax'
 )
 
@@ -124,6 +125,8 @@ class CustomTemplateResponse(HTMLResponse):
             
             context['url_for'] = url_for
             context['get_flashed_messages'] = get_flashed_messages
+            if 'session_user' not in context:
+                context['session_user'] = request.session.get('user')
         
         # Render the template
         content = templates.get_template(template_name).render(context)
@@ -694,6 +697,13 @@ async def professors_page(request: Request):
 
 # ===== AUTH ROUTES =====
 
+@app.get("/auth/google")
+async def auth_google(request: Request):
+    """Redirige a Supabase Google OAuth"""
+    redirect_to = str(request.base_url) + "login"
+    url = f"{SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to={redirect_to}"
+    return RedirectResponse(url=url, status_code=302)
+
 @app.get("/login", response_class=HTMLResponse)
 async def login_view(request: Request):
     """Página de login"""
@@ -722,7 +732,8 @@ async def auth_login(
         return RedirectResponse(url="/login", status_code=303)
     
     request.session['access_token'] = res['access_token']
-    request.session['user'] = res['user']
+    u = res['user']
+    request.session['user'] = {'id': u.get('id'), 'email': u.get('email'), 'user_metadata': {'full_name': u.get('user_metadata', {}).get('full_name'), 'avatar_url': u.get('user_metadata', {}).get('avatar_url')}}
     return RedirectResponse(url="/dashboard", status_code=303)
 
 @app.post("/auth/register")
@@ -870,7 +881,7 @@ async def auth_callback_get(request: Request):
         return RedirectResponse(url="/login", status_code=303)
 
     request.session['access_token'] = access_token
-    request.session['user'] = user
+    request.session['user'] = {'id': user.get('id'), 'email': user.get('email'), 'user_metadata': {'full_name': user.get('user_metadata', {}).get('full_name'), 'avatar_url': user.get('user_metadata', {}).get('avatar_url')}}
     if refresh_token:
         request.session['refresh_token'] = refresh_token
 
@@ -878,6 +889,41 @@ async def auth_callback_get(request: Request):
         return RedirectResponse(url="/reset-password", status_code=303)
 
     return CustomTemplateResponse("confirmation.html", {"request": request})
+
+@app.post("/auth/callback/form")
+async def auth_callback_form(
+    request: Request,
+    access_token: str = Form(None),
+    refresh_token: str = Form(None),
+    type: str = Form(None),
+    error: str = Form(None),
+    error_description: str = Form(None),
+):
+    """Manejar callback OAuth via form submit (cookie-safe)"""
+    if error:
+        flash(request, f'Error: {error_description}', 'error')
+        return RedirectResponse(url="/login", status_code=303)
+    if not access_token:
+        flash(request, 'Token de acceso faltante', 'error')
+        return RedirectResponse(url="/login", status_code=303)
+    user = supabase_get_user(access_token)
+    if not user:
+        flash(request, 'Error al obtener información del usuario', 'error')
+        return RedirectResponse(url="/login", status_code=303)
+    request.session['access_token'] = access_token
+    request.session['user'] = {
+        'id': user.get('id'),
+        'email': user.get('email'),
+        'user_metadata': {
+            'full_name': user.get('user_metadata', {}).get('full_name'),
+            'avatar_url': user.get('user_metadata', {}).get('avatar_url'),
+        }
+    }
+    if refresh_token:
+        request.session['refresh_token'] = refresh_token
+    dest = "/reset-password" if type == "recovery" else "/dashboard"
+    from fastapi.responses import HTMLResponse as _HR
+    return _HR(content=f'<meta http-equiv="refresh" content="0;url={dest}">', status_code=200)
 
 @app.post("/auth/callback")
 async def auth_callback_post(request: Request, data: Dict[str, Any] = Body(...)):
@@ -899,7 +945,7 @@ async def auth_callback_post(request: Request, data: Dict[str, Any] = Body(...))
         return JSONResponse({'error': 'Error al obtener información del usuario'}, status_code=400)
 
     request.session['access_token'] = access_token
-    request.session['user'] = user
+    request.session['user'] = {'id': user.get('id'), 'email': user.get('email'), 'user_metadata': {'full_name': user.get('user_metadata', {}).get('full_name'), 'avatar_url': user.get('user_metadata', {}).get('avatar_url')}}
     if refresh_token:
         request.session['refresh_token'] = refresh_token
 
@@ -946,7 +992,8 @@ async def dashboard(request: Request):
             "profile": profile,
             "can_create_more": can_create_more,
             "schedule_count": len(schedules),
-            "max_schedules": max_schedules
+            "max_schedules": max_schedules,
+            "centros": CENTROS
         }
     )
 
@@ -1263,7 +1310,7 @@ async def buscar_profesores(data: BuscarProfesoresRequest):
                 if materia_nombre:
                     profesores_dict[prof].add(materia_nombre)
         
-        # Usar caché para ratings (reduce queries a Supabase)\r\n        ratings_averages = get_cached_professor_ratings()
+        ratings_averages = get_cached_professor_ratings()
 
         profesores_lista = []
         for name in sorted(profesores_dict.keys()):

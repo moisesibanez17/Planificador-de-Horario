@@ -23,24 +23,7 @@
     {% endif %}
     {% endwith %}
 
-    <header class="main-header">
-      <div class="header-brand-container">
-        <a href="/dashboard" class="btn-back" title="Volver al Dashboard">
-          <i class="fas fa-arrow-left"></i>
-        </a>
-        <div class="header-brand">
-          <img src="{{ url_for('static', filename='assets/icon.png') }}" alt="Logo" class="header-logo">
-          <div>
-            <h1 class="header-title">{{ schedule.name }}</h1>
-            <div class="subtitle">Ver y gestionar tu horario guardado</div>
-          </div>
-        </div>
-      </div>
-      <div class="header-actions">
-        <a href="/" class="btn btn-outline btn-sm" style="margin-right: 10px;"><i class="fas fa-home"></i> Inicio</a>
-        <a href="/dashboard" class="btn btn-outline btn-sm">← Volver al Dashboard</a>
-      </div>
-    </header>
+    {% include '_navbar.html' %}
 
     <div class="schedule-container">
       <div class="schedule-layout">
